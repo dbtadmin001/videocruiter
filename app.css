@@ -55,6 +55,8 @@ p{margin:0 0 12px}
 .wrap.center .lede{margin-left:auto;margin-right:auto}
 .fineprint{color:var(--ink-soft);font-size:13px;margin-top:16px}
 .hint{color:var(--ink-soft);font-size:13px;margin:6px 0 0}
+code{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 5px;
+  font-size:12.5px;font-family:ui-monospace,Consolas,"Courier New",monospace}
 
 .card{
   background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
@@ -184,7 +186,20 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
   margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow)}
 .answer-head{padding:16px 18px;border-bottom:1px solid var(--line)}
 .answer-num{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--accent);margin-bottom:6px}
+  color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cat-badge{background:#e8f0fe;color:var(--accent);border-radius:99px;padding:2px 9px;
+  font-size:10.5px;letter-spacing:.05em;font-weight:600}
+
+/* IAEA preparation tips on the setup screen */
+.tips{margin:16px 0 4px;border-top:1px solid var(--line);padding-top:14px}
+.tips summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft);
+  list-style:none;user-select:none}
+.tips summary::marker,.tips summary::-webkit-details-marker{display:none}
+.tips summary::before{content:'▸ ';color:var(--accent)}
+.tips[open] summary::before{content:'▾ '}
+.tips ul{margin:10px 0 0;padding-left:20px;font-size:13px;color:var(--ink-soft);line-height:1.65}
+.tip-note{font-size:12.5px;color:var(--ink-soft);margin:10px 0 0;padding:9px 11px;
+  background:var(--bg);border-radius:8px;line-height:1.55}
 .answer-q{font-size:16px;line-height:1.45;margin:0}
 .answer-body{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;padding:18px}
 .answer-body video{width:100%;border-radius:9px;background:#000;display:block}

@@ -8,6 +8,7 @@ const LS = {
   sessions: 'vc.sessions',
   scores: 'vc.scores',
   prefs: 'vc.prefs',
+  seed: 'vc.seed',
 };
 
 const read = (key, fallback) => {
@@ -70,27 +71,122 @@ async function idbDeleteSession(sessionId) {
 
 /* ============================ question sets ============================ */
 
-const DEFAULT_QUESTIONS = [
-  "Tell us about yourself and why you are interested in this data engineer position.",
-  "Describe a data pipeline you designed and built end to end. What was the business need, what did you build, and what was the outcome?",
-  "Tell us about a time you discovered a significant data quality problem. How did you identify it, and what did you do?",
-  "Describe a situation where you had to explain a complex technical concept to a non-technical stakeholder. How did you approach it?",
-  "Tell us about a time a production data process failed. Walk us through how you diagnosed the issue and what you changed to prevent it recurring.",
-  "Describe your approach to designing a data model for a new analytics requirement. Give a concrete example.",
-  "Tell us about a time you had to manage competing priorities or conflicting demands from multiple stakeholders.",
-  "Describe a time you significantly improved the performance, reliability, or cost of a data process. What was the measurable result?",
-  "Tell us about your experience working with sensitive or confidential data. How did you ensure it was handled securely and appropriately?",
-  "Describe a time you received critical feedback on your technical work. How did you respond?",
-  "Tell us about a time you had to learn a new technology or platform quickly to deliver on a commitment.",
-  "Describe a time you identified an improvement to a process or standard that no one had asked you to fix. What did you do, and what happened?",
+/* Question categories are IAEA's own, from the Agency's pre-screening deck
+   ("Examples of Sonru questions that can be asked"). Keeping the six labels
+   means a mock run covers the same ground the real screen does. */
+const CATEGORIES = [
+  'Motivational',
+  'Job related generic',
+  'Job related technical',
+  'Managerial',
+  'Scenario',
+  'Competency based',
 ];
 
+/* A full mock at IAEA's stated average: 5-6 questions, one drawn from each
+   category. Three of these are the Agency's own example questions, reworded
+   only where the sample role differed. */
+const SET_MOCK = [
+  ['Motivational',
+    'Please tell us what motivated you to apply for this position, and explain what specific skills and abilities you possess that make you the best candidate.'],
+  ['Job related generic',
+    'Tell us briefly about your experience in data engineering. Please specify the different steps you typically follow to take a data product from requirement through to production.'],
+  ['Job related technical',
+    'Please describe the differences between a data warehouse, a data lake and a lakehouse, and explain how you would decide which is appropriate for an organization consolidating data from many independent operational systems.'],
+  ['Competency based',
+    'Please tell us of a time when you had exceeded the expectations of an internal client or key stakeholder.'],
+  ['Scenario',
+    'How would you lead and coordinate the design, implementation and monitoring of a new data platform, and ensure targeted delivery levels are met within the Section?'],
+  ['Managerial',
+    'Describe a time when you were coordinating a team where a member’s performance or attitude was negatively impacting delivery, and explain how you dealt with it.'],
+];
+
+/* Behavioural bank. Each maps to an IAEA core or functional competency and to
+   one of the eight story themes, so one prepared story can serve several. */
+const SET_COMPETENCY = [
+  ['Competency based', 'Please tell us of a time when you had exceeded the expectations of an internal client or key stakeholder.'],
+  ['Competency based', 'Give an example of a time when you had to deal with a particularly challenging user or client issue relating to data they depended on.'],
+  ['Competency based', 'Describe a situation where you had to explain a complex technical concept to a non-technical stakeholder in order to get a decision made.'],
+  ['Competency based', 'Tell us about a time when you failed to meet an important goal or deadline. What contributed to it, and what did you change afterwards?'],
+  ['Competency based', 'Describe a situation where you had a disagreement with a colleague over a technical approach. How did you resolve it and preserve the working relationship?'],
+  ['Competency based', 'Give an example of a complex problem you encountered that required an innovative solution. How did you measure whether it worked?'],
+  ['Competency based', 'Describe a time when you had to learn a new technology quickly because a delivery depended on it.'],
+  ['Competency based', 'Describe a period when you had to manage several high-priority pieces of work at once. How did you prioritize, and what would you do differently?'],
+  ['Competency based', 'Tell us about a time you identified an improvement to a process or standard that nobody had asked you to fix.'],
+  ['Competency based', 'Tell us about a time you shared knowledge or built the capability of colleagues — through documentation, training or mentoring.'],
+  ['Competency based', 'Describe a time you were under pressure to deliver a figure or a report that the underlying data did not properly support. How did you handle it?'],
+  ['Competency based', 'Tell us about a time you worked with people from very different cultural or professional backgrounds to deliver a shared result.'],
+  ['Competency based', 'Describe a time you received critical feedback on your technical work. How did you respond?'],
+  ['Competency based', 'Tell us about a time a production data process failed. How did you diagnose it, and what did you change so it would not recur?'],
+];
+
+const SET_TECHNICAL = [
+  ['Job related generic', 'Tell us briefly about your experience in data engineering. Please specify the different steps you typically follow to take a data product from requirement through to production.'],
+  ['Job related generic', 'Tell us about your experience gathering data requirements from stakeholders who are not sure what they need.'],
+  ['Job related generic', 'Describe your experience with data governance — metadata, lineage, cataloguing and documentation standards.'],
+  ['Job related technical', 'Please describe the differences between a data warehouse, a data lake and a lakehouse, and how you would choose between them.'],
+  ['Job related technical', 'Explain the difference between ETL and ELT, and describe the circumstances in which you would choose one over the other.'],
+  ['Job related technical', 'Describe the differences between batch and streaming ingestion, and explain how you would decide which a given source warrants.'],
+  ['Job related technical', 'How do you build data quality assurance into a pipeline? Describe the specific controls you put in place and what happens when one fails.'],
+  ['Job related technical', 'Describe your approach to data modelling. Explain the difference between a normalized and a dimensional model, and when each is appropriate.'],
+  ['Job related technical', 'How do you handle schema changes from an upstream system that you do not control?'],
+  ['Job related technical', 'Describe how you would design a pipeline to handle sensitive or confidential data, covering access control, anonymization and audit.'],
+  ['Job related technical', 'Tell us how you apply software engineering practice — version control, testing, CI/CD, code review — to data pipelines.'],
+  ['Job related technical', 'Describe a time you improved the performance or cost of a data process. What was the measurable result?'],
+  ['Job related technical', 'How do you monitor pipelines in production, and how do you decide what is worth alerting on?'],
+  ['Job related technical', 'Explain how you would reconcile the same business entity arriving from several source systems with conflicting values.'],
+  ['Scenario', 'You join and find the existing pipelines are undocumented, and fail most weeks. What would you do in your first ninety days?'],
+  ['Scenario', 'A Member State submits its monthly data in a slightly different structure each time. How would you design around that?'],
+  ['Scenario', 'A senior stakeholder needs a figure by tomorrow, but you know the underlying data has an unresolved quality problem. What do you do?'],
+  ['Scenario', 'You are asked to consolidate reporting across several Sections that each maintain their own spreadsheets and definitions. How would you approach it?'],
+];
+
+const SET_MOTIVATION = [
+  ['Motivational', 'Please tell us what motivated you to apply for this position, and explain what specific skills and abilities you possess that make you the best candidate.'],
+  ['Motivational', 'What challenges are you looking for in this data engineer position?'],
+  ['Motivational', 'Why do you want to work for an international organization, and for the IAEA in particular?'],
+  ['Motivational', 'What do you understand the IAEA’s mandate to be, and where do you see data engineering contributing to it?'],
+  ['Motivational', 'The IAEA’s core values are integrity, professionalism and respect. Tell us about a time your own work demonstrated one of them.'],
+  ['Motivational', 'This role would mean working in a multicultural environment in Vienna. What in your background prepares you for that?'],
+  ['Motivational', 'Where do you see the biggest opportunity for the Agency to make better use of its data over the next few years?'],
+  ['Motivational', 'What questions would you want answered about this role and the team before accepting an offer?'],
+];
+
+const DEFAULT_SETS = [
+  ['IAEA mock — full run (6 questions, one per category)', SET_MOCK],
+  ['IAEA competency & behavioural bank', SET_COMPETENCY],
+  ['Core data engineering — technical & scenario', SET_TECHNICAL],
+  ['Motivation & IAEA fit', SET_MOTIVATION],
+];
+
+/* Questions are stored as {t: text, c: category}. Older sets held bare strings,
+   so everything is normalized on read. */
+function normalizeQuestion(q) {
+  if (q && typeof q === 'object') return { t: String(q.t || ''), c: String(q.c || '') };
+  const text = String(q || '');
+  const m = text.match(/^\s*\[([^\]]{1,40})\]\s*(.+)$/s);
+  return m ? { t: m[2].trim(), c: m[1].trim() } : { t: text.trim(), c: '' };
+}
+
+const SEED_VERSION = 2;   // bump when DEFAULT_SETS gains a set worth pushing out
+
 function loadSets() {
-  let sets = read(LS.sets, null);
-  if (!sets || !sets.length) {
-    sets = [{ id: uid(), name: 'Data Engineer — competency set', questions: DEFAULT_QUESTIONS }];
+  let sets = read(LS.sets, null) || [];
+  const seeded = read(LS.seed, 0);
+
+  if (seeded < SEED_VERSION) {
+    // Add any default set the user does not already have, by name. Sets they
+    // wrote or edited themselves are left untouched.
+    const have = new Set(sets.map(s => s.name));
+    DEFAULT_SETS.forEach(([name, rows]) => {
+      if (have.has(name)) return;
+      sets.push({ id: uid(), name, questions: rows.map(([c, t]) => ({ t, c })) });
+    });
     write(LS.sets, sets);
+    write(LS.seed, SEED_VERSION);
   }
+
+  sets.forEach(s => { s.questions = (s.questions || []).map(normalizeQuestion); });
   return sets;
 }
 
@@ -164,7 +260,7 @@ function renderCountOptions() {
   const all = el('option', null, `All ${total}`);
   all.value = String(total);
   sel.appendChild(all);
-  [1, 2, 3, 5, 8].filter(n => n < total).forEach(n => {
+  [3, 5, 6, 8, 10].filter(n => n < total).forEach(n => {
     const o = el('option', null, `First ${n}`);
     o.value = String(n);
     sel.appendChild(o);
@@ -523,10 +619,10 @@ async function askQuestion(i) {
 
   // Question appears and recording starts in the same beat — as instructed.
   $('#lead-in').classList.add('hidden');
-  $('#q-text').textContent = IV.questions[i];
+  $('#q-text').textContent = IV.questions[i].t;
   $('#question-live').classList.remove('hidden');
   $('#rec-badge').classList.remove('hidden');
-  if (IV.readAloud) speak(IV.questions[i]);
+  if (IV.readAloud) speak(IV.questions[i].t);
 
   const result = await recordAnswer();
   if (result.action === 'saved') {
@@ -625,7 +721,8 @@ async function storeAnswer(i, blob, duration) {
     id: uid(),
     sessionId: IV.session.id,
     index: i,
-    question: IV.questions[i],
+    question: IV.questions[i].t,
+    category: IV.questions[i].c,
     blob,
     type: blob.type,
     duration,
@@ -640,7 +737,7 @@ async function storeAnswer(i, blob, duration) {
     return;
   }
   IV.session.answers.push({
-    clipId: clip.id, index: i, question: clip.question,
+    clipId: clip.id, index: i, question: clip.question, category: clip.category,
     duration, allotted: IV.secs, createdAt: clip.createdAt,
   });
   const sessions = read(LS.sessions, []);
@@ -698,11 +795,14 @@ function beep(freq, duration, gainValue) {
 let reviewSessionId = null;
 let openUrls = [];
 
+/* These are the Agency's own evaluation criteria, in its own order, from
+   "How do we evaluate Sonru interviews?" -- not a generic interview rubric. */
 const CRITERIA = [
-  ['structure', 'Structure (STAR)'],
-  ['content', 'Content & depth'],
-  ['clarity', 'Clarity & pace'],
-  ['impact', 'Impact / result'],
+  ['content', 'Content of the answer'],
+  ['style', 'Communication style — structure, focus, clarity'],
+  ['depth', 'Depth & complexity of the example'],
+  ['posture', 'Body language & posture'],
+  ['fit', 'Fit for the team & positive attitude'],
 ];
 
 function releaseUrls() {
@@ -788,7 +888,10 @@ async function openSession(sessionId) {
     const card = el('div', 'answer-card');
 
     const head2 = el('div', 'answer-head');
-    head2.appendChild(el('div', 'answer-num', `Question ${answer.index + 1}`));
+    const numRow = el('div', 'answer-num');
+    numRow.appendChild(el('span', null, `Question ${answer.index + 1}`));
+    if (answer.category) numRow.appendChild(el('span', 'cat-badge', answer.category));
+    head2.appendChild(numRow);
     head2.appendChild(el('p', 'answer-q', answer.question));
     card.appendChild(head2);
 
@@ -916,12 +1019,14 @@ function loadSetIntoEditor() {
   const set = loadSets().find(s => s.id === editingSetId);
   if (!set) return;
   $('#set-name').value = set.name;
-  $('#set-questions').value = set.questions.join('\n\n');
+  $('#set-questions').value = set.questions
+    .map(q => (q.c ? `[${q.c}] ${q.t}` : q.t)).join('\n\n');
   updateCountHint();
 }
 
 function parseQuestions() {
-  return $('#set-questions').value.split('\n').map(l => l.trim()).filter(Boolean);
+  return $('#set-questions').value
+    .split('\n').map(l => l.trim()).filter(Boolean).map(normalizeQuestion);
 }
 
 function updateCountHint() {

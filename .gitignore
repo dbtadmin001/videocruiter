@@ -1,3 +1,9 @@
+# Personal and third-party source material lives in this folder but must never
+# be published -- the repo is public. Keep it that way.
+*.pdf
+*.docx
+*.doc
+
 # Recorded answers never leave the browser's IndexedDB, but if you export any
 # with the Download button, keep them out of the repo.
 *.webm
