@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mock VidCruiter — Interview Trainer</title>
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="dot"></span>
+    <strong>Mock&nbsp;Interview</strong>
+    <span class="muted">VidCruiter-style trainer</span>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn" data-goto="home">Practice</button>
+    <button class="nav-btn" data-goto="review">Review</button>
+    <button class="nav-btn" data-goto="questions">Questions</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ================= HOME ================= -->
+  <section id="screen-home" class="screen">
+    <div class="wrap narrow">
+      <h1>Ready your interview</h1>
+      <p class="lede">
+        Recording starts the moment a question appears. Preparation and answering share the same
+        clock — exactly like the real thing.
+      </p>
+
+      <div class="card">
+        <label class="field">
+          <span class="label">Question set</span>
+          <select id="set-select"></select>
+        </label>
+
+        <div class="grid-2">
+          <label class="field">
+            <span class="label">Time per question</span>
+            <select id="time-select">
+              <option value="240" selected>4 minutes (as instructed)</option>
+              <option value="180">3 minutes</option>
+              <option value="120">2 minutes</option>
+              <option value="90">90 seconds</option>
+              <option value="60">60 seconds</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="label">Mode</span>
+            <select id="mode-select">
+              <option value="realistic" selected>Realistic — one take, no pause</option>
+              <option value="practice">Practice — retakes allowed</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label class="field">
+            <span class="label">Questions to ask</span>
+            <select id="count-select"></select>
+          </label>
+          <label class="field">
+            <span class="label">Order</span>
+            <select id="order-select">
+              <option value="listed" selected>As listed</option>
+              <option value="shuffle">Shuffle</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="opt-readaloud" />
+          <span>Read each question aloud (browser speech)</span>
+        </label>
+
+        <button class="btn primary big" id="btn-to-setup">Check camera &amp; mic →</button>
+      </div>
+
+      <p class="fineprint">
+        Everything stays on this machine. Video is written to your browser's local database — nothing
+        is uploaded anywhere.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= SETUP ================= -->
+  <section id="screen-setup" class="screen">
+    <div class="wrap">
+      <h1>Camera &amp; microphone check</h1>
+      <p class="lede">Sit as you will for the interview. Check your framing, lighting and levels.</p>
+
+      <div class="setup-grid">
+        <div class="card pad0">
+          <div class="video-frame">
+            <video id="setup-video" autoplay muted playsinline></video>
+            <div class="framing-guide"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <label class="field">
+            <span class="label">Camera</span>
+            <select id="cam-select"></select>
+          </label>
+          <label class="field">
+            <span class="label">Microphone</span>
+            <select id="mic-select"></select>
+          </label>
+
+          <div class="field">
+            <span class="label">Input level — say a sentence out loud</span>
+            <div class="meter"><div class="meter-fill" id="meter-fill"></div></div>
+            <p class="hint" id="meter-hint">Waiting for audio…</p>
+          </div>
+
+          <div class="checklist">
+            <div class="check-item" id="chk-video"><span class="tick">○</span> Camera streaming</div>
+            <div class="check-item" id="chk-audio"><span class="tick">○</span> Microphone picking up voice</div>
+            <div class="check-item" id="chk-quiet"><span class="tick">○</span> Quiet room, no interruptions</div>
+          </div>
+
+          <div id="setup-error" class="alert hidden"></div>
+          <button class="btn ghost sm hidden" id="btn-retry-cam">↻ Retry camera</button>
+
+          <div class="row">
+            <button class="btn ghost" data-goto="home">← Back</button>
+            <button class="btn primary" id="btn-start" disabled>Start interview</button>
+          </div>
+          <p class="hint" id="start-hint">Grant camera and microphone access to continue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INTERVIEW ================= -->
+  <section id="screen-interview" class="screen">
+    <div class="stage">
+
+      <div class="stage-head">
+        <div class="progress-text">
+          Question <strong id="q-index">1</strong> of <span id="q-total">1</span>
+        </div>
+        <div class="rec-badge hidden" id="rec-badge"><span class="rec-dot"></span> RECORDING</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+      <div class="stage-body">
+        <div class="question-panel">
+          <div class="lead-in" id="lead-in">
+            <p class="lead-label">Next question in</p>
+            <div class="lead-count" id="lead-count">3</div>
+            <p class="lead-note">Recording begins as soon as the question appears.</p>
+          </div>
+
+          <div class="question-live hidden" id="question-live">
+            <p class="q-label">Question</p>
+            <p class="q-text" id="q-text"></p>
+          </div>
+        </div>
+
+        <aside class="timer-panel">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 120 120">
+              <circle class="ring-track" cx="60" cy="60" r="54" />
+              <circle class="ring-value" id="ring-value" cx="60" cy="60" r="54" />
+            </svg>
+            <div class="ring-label">
+              <div class="time-left" id="time-left">4:00</div>
+              <div class="time-cap">remaining</div>
+            </div>
+          </div>
+
+          <div class="self-view">
+            <video id="live-video" autoplay muted playsinline></video>
+          </div>
+
+          <div class="controls">
+            <button class="btn primary wide" id="btn-submit">Submit answer &amp; continue</button>
+            <button class="btn ghost wide hidden" id="btn-retake">Retake this question</button>
+            <button class="btn danger-quiet wide" id="btn-abort">End interview</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DONE ================= -->
+  <section id="screen-done" class="screen">
+    <div class="wrap narrow center">
+      <div class="big-tick">✓</div>
+      <h1>Interview complete</h1>
+      <p class="lede" id="done-summary"></p>
+      <div class="row center">
+        <button class="btn primary" id="btn-to-review">Review as the interviewer →</button>
+        <button class="btn ghost" data-goto="home">Run another</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= REVIEW ================= -->
+  <section id="screen-review" class="screen">
+    <div class="wrap">
+      <div class="row spread">
+        <div>
+          <h1>Interviewer panel</h1>
+          <p class="lede">Watch your answers back the way a panel would, and score them cold.</p>
+        </div>
+        <button class="btn ghost" id="btn-back-sessions" hidden>← All sessions</button>
+      </div>
+
+      <div id="session-list"></div>
+      <div id="session-detail" hidden></div>
+    </div>
+  </section>
+
+  <!-- ================= QUESTIONS ================= -->
+  <section id="screen-questions" class="screen">
+    <div class="wrap narrow">
+      <h1>Question sets</h1>
+      <p class="lede">One question per line. Blank lines are ignored.</p>
+
+      <div class="card">
+        <label class="field">
+          <span class="label">Set</span>
+          <select id="edit-set-select"></select>
+        </label>
+        <label class="field">
+          <span class="label">Name</span>
+          <input type="text" id="set-name" />
+        </label>
+        <label class="field">
+          <span class="label">Questions</span>
+          <textarea id="set-questions" rows="16" spellcheck="false"></textarea>
+        </label>
+        <p class="hint" id="q-count-hint"></p>
+        <div class="row">
+          <button class="btn primary" id="btn-save-set">Save</button>
+          <button class="btn ghost" id="btn-new-set">New set</button>
+          <button class="btn danger-quiet" id="btn-del-set">Delete set</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

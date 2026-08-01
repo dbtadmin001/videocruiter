@@ -1,0 +1,9 @@
+# Recorded answers never leave the browser's IndexedDB, but if you export any
+# with the Download button, keep them out of the repo.
+*.webm
+*.mp4
+
+# Windows / OneDrive noise
+Thumbs.db
+desktop.ini
+.DS_Store
