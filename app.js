@@ -84,79 +84,112 @@ const CATEGORIES = [
 ];
 
 /* A full mock at IAEA's stated average: 5-6 questions, one drawn from each
-   category. Three of these are the Agency's own example questions, reworded
-   only where the sample role differed. */
+   category. Three are the Agency's own example questions, reworded only where
+   the sample role differed; the rest come straight off the P3 vacancy notice. */
 const SET_MOCK = [
   ['Motivational',
     'Please tell us what motivated you to apply for this position, and explain what specific skills and abilities you possess that make you the best candidate.'],
   ['Job related generic',
     'Tell us briefly about your experience in data engineering. Please specify the different steps you typically follow to take a data product from requirement through to production.'],
   ['Job related technical',
-    'Please describe the differences between a data warehouse, a data lake and a lakehouse, and explain how you would decide which is appropriate for an organization consolidating data from many independent operational systems.'],
-  ['Competency based',
+    'The Department is maintaining an on-premise data architecture while moving towards a modern lakehouse. Please describe the differences between a traditional data warehouse and a lakehouse, and explain what a table format such as Iceberg and a query engine such as Trino each contribute.'],
+  ['Competency based · Achieving Results',
     'Please tell us of a time when you had exceeded the expectations of an internal client or key stakeholder.'],
   ['Scenario',
-    'How would you lead and coordinate the design, implementation and monitoring of a new data platform, and ensure targeted delivery levels are met within the Section?'],
+    'How would you lead and coordinate the design, implementation and monitoring of a new data pipeline serving analysts in the Department of Safeguards, and ensure targeted delivery levels are met within the Section?'],
   ['Managerial',
     'Describe a time when you were coordinating a team where a member’s performance or attitude was negatively impacting delivery, and explain how you dealt with it.'],
 ];
 
-/* Behavioural bank. Each maps to an IAEA core or functional competency and to
-   one of the eight story themes, so one prepared story can serve several. */
+/* Behavioural bank, tagged with the competency each question targets. The four
+   core and three functional competencies are the ones named on this vacancy
+   notice, not a generic framework. */
 const SET_COMPETENCY = [
-  ['Competency based', 'Please tell us of a time when you had exceeded the expectations of an internal client or key stakeholder.'],
-  ['Competency based', 'Give an example of a time when you had to deal with a particularly challenging user or client issue relating to data they depended on.'],
-  ['Competency based', 'Describe a situation where you had to explain a complex technical concept to a non-technical stakeholder in order to get a decision made.'],
-  ['Competency based', 'Tell us about a time when you failed to meet an important goal or deadline. What contributed to it, and what did you change afterwards?'],
-  ['Competency based', 'Describe a situation where you had a disagreement with a colleague over a technical approach. How did you resolve it and preserve the working relationship?'],
-  ['Competency based', 'Give an example of a complex problem you encountered that required an innovative solution. How did you measure whether it worked?'],
-  ['Competency based', 'Describe a time when you had to learn a new technology quickly because a delivery depended on it.'],
-  ['Competency based', 'Describe a period when you had to manage several high-priority pieces of work at once. How did you prioritize, and what would you do differently?'],
-  ['Competency based', 'Tell us about a time you identified an improvement to a process or standard that nobody had asked you to fix.'],
-  ['Competency based', 'Tell us about a time you shared knowledge or built the capability of colleagues — through documentation, training or mentoring.'],
-  ['Competency based', 'Describe a time you were under pressure to deliver a figure or a report that the underlying data did not properly support. How did you handle it?'],
-  ['Competency based', 'Tell us about a time you worked with people from very different cultural or professional backgrounds to deliver a shared result.'],
-  ['Competency based', 'Describe a time you received critical feedback on your technical work. How did you respond?'],
-  ['Competency based', 'Tell us about a time a production data process failed. How did you diagnose it, and what did you change so it would not recur?'],
+  ['Competency based · Achieving Results', 'Please tell us of a time when you had exceeded the expectations of an internal client or key stakeholder.'],
+  ['Competency based · Achieving Results', 'Tell us about a time you defined the scope, the realistic outputs and the success measures for a piece of work yourself. How did you evaluate the result afterwards?'],
+  ['Competency based · Achieving Results', 'Tell us about a time when you failed to meet an important goal or deadline. What contributed to it, and what did you draw from it?'],
+  ['Competency based · Communication', 'Describe a situation where you had to explain a complex technical concept to a non-technical stakeholder in order to get a decision made.'],
+  ['Competency based · Communication', 'Give an example of a time you took the trouble to understand someone else’s perspective before proposing a solution, and it changed what you proposed.'],
+  ['Competency based · Communication', 'Tell us about a time you had to deliver an unwelcome technical message — a slipped date, a flawed dataset — to people who depended on it.'],
+  ['Competency based · Teamwork', 'Describe a situation where you disagreed with a colleague over a technical approach. How did you resolve it and preserve the working relationship?'],
+  ['Competency based · Teamwork', 'Tell us about a time you supported a team decision you had argued against. How did you handle it?'],
+  ['Competency based · Teamwork', 'Tell us about a time you worked with people from very different cultural or professional backgrounds to deliver a shared result.'],
+  ['Competency based · Planning and Organizing', 'Describe a period when you had to manage several high-priority pieces of work at once. How did you prioritize, and what would you do differently?'],
+  ['Competency based · Planning and Organizing', 'Tell us about a time your plan had to change part-way through a delivery. What contingency did you have, and what did you wish you had had?'],
+  ['Competency based · Client orientation', 'Give an example of a time when you had to deal with a particularly challenging user issue relating to data they depended on.'],
+  ['Competency based · Client orientation', 'Tell us about a time a user asked you for one thing when they actually needed another. How did you work out the real need?'],
+  ['Competency based · Continuous process improvement', 'Tell us about a time you identified an improvement to a process, system or standard that nobody had asked you to fix.'],
+  ['Competency based · Continuous process improvement', 'Describe how you have built quality and risk management into your delivery, with a concrete example of a risk you caught early.'],
+  ['Competency based · Technical/scientific credibility', 'Describe a time you were under pressure to deliver a figure or a report that the underlying data did not properly support. How did you handle it?'],
+  ['Competency based · Technical/scientific credibility', 'Tell us about a time you had to defend a technical position with evidence against more senior opinion.'],
+  ['Competency based · Technical/scientific credibility', 'Describe a time you had to learn a new technology quickly because a delivery depended on it.'],
+  ['Competency based · Achieving Results', 'Tell us about a time a production data pipeline failed. How did you diagnose it, and what did you change so it would not recur?'],
+  ['Competency based · Communication', 'Tell us about a time you advised a domain team or stakeholder as the data expert, and your advice shaped what they built.'],
 ];
 
+/* Technical set drawn from the vacancy notice's required expertise and named
+   platforms: Spark, Trino, Airflow, Iceberg, Jupyter, dbt core, Kafka, S3,
+   elastic; SQL Server, MongoDB, Elasticsearch/OpenSearch; Python and SQL. */
 const SET_TECHNICAL = [
   ['Job related generic', 'Tell us briefly about your experience in data engineering. Please specify the different steps you typically follow to take a data product from requirement through to production.'],
-  ['Job related generic', 'Tell us about your experience gathering data requirements from stakeholders who are not sure what they need.'],
+  ['Job related generic', 'Tell us about your experience analysing user and technical requirements and turning them into a data solution. How do you handle stakeholders who are not sure what they need?'],
+  ['Job related generic', 'Describe your experience managing and monitoring an on-premise data architecture. What does on-premise make harder than a cloud platform, and how do you plan for capacity?'],
   ['Job related generic', 'Describe your experience with data governance — metadata, lineage, cataloguing and documentation standards.'],
-  ['Job related technical', 'Please describe the differences between a data warehouse, a data lake and a lakehouse, and how you would choose between them.'],
-  ['Job related technical', 'Explain the difference between ETL and ELT, and describe the circumstances in which you would choose one over the other.'],
-  ['Job related technical', 'Describe the differences between batch and streaming ingestion, and explain how you would decide which a given source warrants.'],
+  ['Job related technical', 'Please describe the differences between a traditional data warehouse, a data lake and a lakehouse, and explain how you would decide which is appropriate.'],
+  ['Job related technical', 'What problems does a table format such as Iceberg solve that plain files on object storage do not? Cover schema evolution, partitioning and transactional guarantees.'],
+  ['Job related technical', 'Explain where you would use Trino and where you would use Spark. What does a federated query engine give you that a processing engine does not?'],
+  ['Job related technical', 'Describe how you structure Airflow DAGs for a production workload — dependencies, retries, backfills, and how you make a task safely re-runnable.'],
+  ['Job related technical', 'How do you use dbt core in a pipeline? Explain how you layer models, what you test, and how dbt fits alongside Spark or Trino.'],
+  ['Job related technical', 'Tell us about your experience with Kafka. How would you decide whether a given source warrants streaming ingestion rather than a scheduled batch?'],
+  ['Job related technical', 'Describe a Spark job you had to make faster. What was the bottleneck — skew, shuffle, partitioning, file sizes — and how did you diagnose and fix it?'],
+  ['Job related technical', 'Explain your approach to optimizing database queries in SQL Server. Talk about execution plans, indexing and statistics, with a concrete tuning example.'],
+  ['Job related technical', 'When would you choose a document store such as MongoDB, a search engine such as Elasticsearch or OpenSearch, and a relational database? Give the deciding factors.'],
+  ['Job related technical', 'How would you design a search capability over a large collection of unstructured documents that analysts need to query alongside structured data?'],
+  ['Job related technical', 'Explain dimensional modelling. Cover grain, star schemas and slowly changing dimensions, and how you structure data for query performance.'],
+  ['Job related technical', 'How do you organize data on object storage such as S3 — partitioning, file sizes, formats, compaction — and why does it matter for query performance?'],
+  ['Job related technical', 'How do you write production-grade Python for data pipelines? Cover structure, testing, packaging, configuration and error handling.'],
   ['Job related technical', 'How do you build data quality assurance into a pipeline? Describe the specific controls you put in place and what happens when one fails.'],
-  ['Job related technical', 'Describe your approach to data modelling. Explain the difference between a normalized and a dimensional model, and when each is appropriate.'],
   ['Job related technical', 'How do you handle schema changes from an upstream system that you do not control?'],
-  ['Job related technical', 'Describe how you would design a pipeline to handle sensitive or confidential data, covering access control, anonymization and audit.'],
+  ['Job related technical', 'Explain how you would reconcile the same entity arriving from several source systems with conflicting values.'],
+  ['Job related technical', 'How do you monitor data pipelines in production, and how do you decide what is worth alerting on?'],
+  ['Job related technical', 'Describe how you would design a pipeline handling confidential information, covering access control, segregation, anonymization and audit.'],
   ['Job related technical', 'Tell us how you apply software engineering practice — version control, testing, CI/CD, code review — to data pipelines.'],
-  ['Job related technical', 'Describe a time you improved the performance or cost of a data process. What was the measurable result?'],
-  ['Job related technical', 'How do you monitor pipelines in production, and how do you decide what is worth alerting on?'],
-  ['Job related technical', 'Explain how you would reconcile the same business entity arriving from several source systems with conflicting values.'],
-  ['Scenario', 'You join and find the existing pipelines are undocumented, and fail most weeks. What would you do in your first ninety days?'],
-  ['Scenario', 'A Member State submits its monthly data in a slightly different structure each time. How would you design around that?'],
+  ['Job related technical', 'The role involves assessing emerging data management technologies and prototyping them. Walk us through how you evaluate a new technology and present the results to a decision maker.'],
+  ['Scenario', 'Data volumes are growing and the on-premise cluster is approaching capacity. You cannot simply scale out elastically. How would you approach it?'],
+  ['Scenario', 'You are asked to migrate a legacy SQL Server warehouse onto a lakehouse architecture without interrupting the analysts who depend on it daily. How would you plan and sequence that?'],
+  ['Scenario', 'You join and find the existing pipelines are undocumented and fail most weeks. What would you do in your first ninety days?'],
+  ['Scenario', 'A source system starts sending its monthly extract in a slightly different structure each time. How would you design around that?'],
   ['Scenario', 'A senior stakeholder needs a figure by tomorrow, but you know the underlying data has an unresolved quality problem. What do you do?'],
-  ['Scenario', 'You are asked to consolidate reporting across several Sections that each maintain their own spreadsheets and definitions. How would you approach it?'],
+  ['Scenario', 'You are asked to consolidate reporting across several Sections that each maintain their own spreadsheets and their own definitions of the same measure. How would you approach it?'],
 ];
 
 const SET_MOTIVATION = [
   ['Motivational', 'Please tell us what motivated you to apply for this position, and explain what specific skills and abilities you possess that make you the best candidate.'],
   ['Motivational', 'What challenges are you looking for in this data engineer position?'],
-  ['Motivational', 'Why do you want to work for an international organization, and for the IAEA in particular?'],
-  ['Motivational', 'What do you understand the IAEA’s mandate to be, and where do you see data engineering contributing to it?'],
-  ['Motivational', 'The IAEA’s core values are integrity, professionalism and respect. Tell us about a time your own work demonstrated one of them.'],
-  ['Motivational', 'This role would mean working in a multicultural environment in Vienna. What in your background prepares you for that?'],
+  ['Motivational', 'What do you understand the Department of Safeguards to do, and where do you see data engineering contributing to it?'],
+  ['Motivational', 'Why do you want to work for an international organization, and for the IAEA in particular, rather than in the private sector?'],
+  ['Motivational', 'The IAEA’s core values are integrity, professionalism and respect for diversity. Tell us about a time your own work demonstrated one of them.'],
+  ['Motivational', 'IAEA staff are international civil servants who may not accept instructions from any other authority. What does that independence mean to you in practice?'],
+  ['Motivational', 'This role handles safeguards information that is highly confidential. What in your experience shows you can be trusted with it?'],
+  ['Motivational', 'The post is in Vienna, in a multicultural team serving over 180 States. What in your background prepares you for that?'],
   ['Motivational', 'Where do you see the biggest opportunity for the Agency to make better use of its data over the next few years?'],
   ['Motivational', 'What questions would you want answered about this role and the team before accepting an offer?'],
 ];
 
 const DEFAULT_SETS = [
-  ['IAEA mock — full run (6 questions, one per category)', SET_MOCK],
-  ['IAEA competency & behavioural bank', SET_COMPETENCY],
-  ['Core data engineering — technical & scenario', SET_TECHNICAL],
+  ['IAEA mock — full run (P3 · Safeguards)', SET_MOCK],
+  ['Competency bank — IAEA core & functional', SET_COMPETENCY],
+  ['Technical & scenario — P3 vacancy stack', SET_TECHNICAL],
   ['Motivation & IAEA fit', SET_MOTIVATION],
+];
+
+/* Names shipped by an earlier seed. They were generated, never authored, so an
+   upgrade replaces them; anything the user named themselves survives. */
+const RETIRED_SET_NAMES = [
+  'Data Engineer — competency set',
+  'IAEA mock — full run (6 questions, one per category)',
+  'IAEA competency & behavioural bank',
+  'Core data engineering — technical & scenario',
 ];
 
 /* Questions are stored as {t: text, c: category}. Older sets held bare strings,
@@ -164,19 +197,19 @@ const DEFAULT_SETS = [
 function normalizeQuestion(q) {
   if (q && typeof q === 'object') return { t: String(q.t || ''), c: String(q.c || '') };
   const text = String(q || '');
-  const m = text.match(/^\s*\[([^\]]{1,40})\]\s*(.+)$/s);
+  const m = text.match(/^\s*\[([^\]]{1,80})\]\s*(.+)$/s);
   return m ? { t: m[2].trim(), c: m[1].trim() } : { t: text.trim(), c: '' };
 }
 
-const SEED_VERSION = 2;   // bump when DEFAULT_SETS gains a set worth pushing out
+const SEED_VERSION = 3;   // bump when DEFAULT_SETS changes materially
 
 function loadSets() {
   let sets = read(LS.sets, null) || [];
   const seeded = read(LS.seed, 0);
 
   if (seeded < SEED_VERSION) {
-    // Add any default set the user does not already have, by name. Sets they
-    // wrote or edited themselves are left untouched.
+    const retired = new Set(RETIRED_SET_NAMES);
+    sets = sets.filter(s => !retired.has(s.name));
     const have = new Set(sets.map(s => s.name));
     DEFAULT_SETS.forEach(([name, rows]) => {
       if (have.has(name)) return;

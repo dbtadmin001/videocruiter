@@ -5,8 +5,12 @@ the question appears, recording starts in the same instant, and preparation + an
 share one clock.
 
 The question categories, the review rubric and the preparation advice are taken from the
-Agency's own briefing on its pre-screening process, so a mock run covers the same ground
-the real screen does.
+Agency's own briefing on its pre-screening process; the questions themselves are built
+against the Data Engineer (P3) vacancy notice. A mock run covers the same ground the real
+screen does.
+
+> A personal rehearsal tool. Not affiliated with, endorsed by, or connected to the IAEA —
+> the styling only mirrors the real process so that practice feels like the real thing.
 
 ## Run it
 
@@ -40,13 +44,32 @@ save as you type, and any answer can be downloaded as a video file.
 
 | Set | Questions | For |
 | --- | --- | --- |
-| IAEA mock — full run | 6 | One per category — the closest thing to a real sitting |
-| IAEA competency & behavioural bank | 14 | STAR stories, mapped to the eight story themes |
-| Core data engineering — technical & scenario | 18 | Technical depth and situational judgement |
-| Motivation & IAEA fit | 8 | Why this role, why the Agency |
+| IAEA mock — full run (P3 · Safeguards) | 6 | One per category — the closest thing to a real sitting |
+| Competency bank — IAEA core & functional | 20 | STAR stories, tagged with the competency each targets |
+| Technical & scenario — P3 vacancy stack | 30 | The platforms and situations the notice actually names |
+| Motivation & IAEA fit | 10 | Why this role, why the Agency, why Safeguards |
 
 The six categories are IAEA's own: Motivational, Job related generic, Job related technical,
-Managerial, Scenario, and Competency based.
+Managerial, Scenario, and Competency based. Competency questions carry a second tag —
+`[Competency based · Teamwork]` — naming which competency they probe.
+
+## What the questions are aligned to
+
+The post is **Data Engineer (P3), Department of Safeguards, Office of Information and
+Communication Systems (SGIS), Vienna**, reporting to a Team Leader.
+
+- **Competencies** are the seven named on the vacancy notice, not a generic framework:
+  Communication, Achieving Results, Teamwork and Planning & Organizing (core); Client
+  orientation, Commitment to continuous process improvement, and Technical/scientific
+  credibility (functional).
+- **Technical questions** cover the platforms the notice lists — Spark, Trino, Airflow,
+  Iceberg, dbt core, Kafka, S3, Elasticsearch/OpenSearch, MongoDB, SQL Server, Python and
+  SQL — plus the things the role is actually responsible for: maintaining an **on-premise**
+  architecture while moving toward a **lakehouse**, optimizing data flows and queries,
+  dimensional modelling, and assessing and prototyping emerging technologies.
+- **Scenarios** are drawn from the role's stated context: on-premise capacity limits,
+  migrating a legacy warehouse without interrupting analysts, confidential safeguards
+  information, and inconsistent upstream sources.
 
 ## Where the data lives
 

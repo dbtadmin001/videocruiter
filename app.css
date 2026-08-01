@@ -1,10 +1,14 @@
 :root{
-  --bg:#f4f6f9;
+  /* IAEA house blue, taken off the Agency's own pre-screening deck */
+  --iaea:#0f4c9b;
+  --iaea-dark:#0a3570;
+  --iaea-tint:#e9f0fa;
+  --bg:#f1f5fa;
   --panel:#ffffff;
   --ink:#141a22;
   --ink-soft:#5b6675;
-  --line:#e2e7ee;
-  --accent:#1f6feb;
+  --line:#dfe6f0;
+  --accent:var(--iaea);
   --accent-ink:#ffffff;
   --ok:#18a058;
   --warn:#d98a00;
@@ -31,19 +35,28 @@ p{margin:0 0 12px}
 /* ---------- top bar ---------- */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:12px 22px;background:var(--panel);border-bottom:1px solid var(--line);
-  position:sticky;top:0;z-index:20;
+  padding:11px 22px;position:sticky;top:0;z-index:20;color:#fff;
+  background:linear-gradient(100deg,var(--iaea-dark) 0%,var(--iaea) 55%,#1a63b8 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 2px 10px rgba(10,53,112,.22);
 }
-.brand{display:flex;align-items:center;gap:9px;font-size:14px}
-.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}
-.brand .muted{font-size:12.5px}
-.nav{display:flex;gap:4px}
+.brand{display:flex;align-items:center;gap:11px}
+.mark{width:30px;height:30px;color:#fff;flex:none;opacity:.95}
+.mark.sm{width:22px;height:22px}
+.brand-text{display:flex;flex-direction:column;line-height:1.2}
+.brand-text strong{font-size:16px;letter-spacing:.16em;font-weight:700}
+.brand-text span{font-size:10.5px;letter-spacing:.02em;color:rgba(255,255,255,.78)}
+.mock-chip{
+  margin-left:4px;align-self:center;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;border:1px solid rgba(255,255,255,.5);color:rgba(255,255,255,.9);
+  border-radius:99px;padding:2px 8px;
+}
+.nav{display:flex;gap:3px}
 .nav-btn{
-  border:0;background:transparent;color:var(--ink-soft);font:inherit;font-size:14px;
-  padding:7px 13px;border-radius:8px;cursor:pointer;
+  border:0;background:transparent;color:rgba(255,255,255,.75);font:inherit;font-size:14px;
+  padding:7px 13px;border-radius:7px;cursor:pointer;
 }
-.nav-btn:hover{background:var(--bg);color:var(--ink)}
-.nav-btn.active{background:#e8f0fe;color:var(--accent);font-weight:600}
+.nav-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.nav-btn.active{background:#fff;color:var(--iaea);font-weight:600}
 
 /* ---------- layout ---------- */
 .screen{display:none}
@@ -54,6 +67,35 @@ p{margin:0 0 12px}
 .lede{color:var(--ink-soft);margin-bottom:22px;max-width:62ch}
 .wrap.center .lede{margin-left:auto;margin-right:auto}
 .fineprint{color:var(--ink-soft);font-size:13px;margin-top:16px}
+.disclaimer{font-size:12px;opacity:.8;border-top:1px solid var(--line);padding-top:12px}
+
+/* Vacancy header — mirrors how the post is presented on the real notice */
+.vacancy{
+  background:linear-gradient(100deg,var(--iaea-dark) 0%,var(--iaea) 60%,#1a63b8 100%);
+  color:#fff;border-radius:var(--radius);padding:24px 26px;margin-bottom:22px;
+  box-shadow:0 8px 26px rgba(10,53,112,.2);position:relative;overflow:hidden;
+}
+.vacancy::after{
+  content:'';position:absolute;right:-70px;top:-90px;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 68%);pointer-events:none;
+}
+.vacancy-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.vacancy h1{margin:0 0 5px;color:#fff;font-size:27px}
+.vacancy-org{margin:0;font-size:13.5px;color:rgba(255,255,255,.85);line-height:1.45}
+.grade{
+  flex:none;border:1px solid rgba(255,255,255,.45);border-radius:99px;padding:3px 12px;
+  font-size:12px;font-weight:700;letter-spacing:.06em;
+}
+.vacancy-facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.vacancy-facts span{
+  background:rgba(255,255,255,.14);border-radius:99px;padding:3px 11px;font-size:12px;
+  color:rgba(255,255,255,.92);
+}
+.vacancy-stage{
+  margin:16px 0 0;padding-top:14px;border-top:1px solid rgba(255,255,255,.22);
+  font-size:13px;line-height:1.55;color:rgba(255,255,255,.88);
+}
+.vacancy-stage strong{color:#fff}
 .hint{color:var(--ink-soft);font-size:13px;margin:6px 0 0}
 code{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 5px;
   font-size:12.5px;font-family:ui-monospace,Consolas,"Courier New",monospace}
@@ -120,7 +162,11 @@ select:focus,input:focus,textarea:focus{outline:2px solid var(--accent);outline-
 /* ---------- interview stage ---------- */
 #screen-interview{background:#0e1116;min-height:calc(100vh - 53px)}
 .stage{max-width:1180px;margin:0 auto;padding:24px 22px 40px;color:#e8ecf2}
-.stage-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stage-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:14px}
+.stage-brand{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#7f8da0;min-width:0}
+.stage-brand .mark{color:#5c9dff;opacity:.85}
+.stage-brand span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage-right{display:flex;align-items:center;gap:16px;flex:none}
 .progress-text{font-size:13.5px;color:#93a0b1;letter-spacing:.02em}
 .progress-text strong{color:#fff}
 .rec-badge{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
